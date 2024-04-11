@@ -8,11 +8,13 @@
 
     Hi {{ user.username }}!
     {% endblock %}
-
+    {% endif %}
 
     {% block navigation %}
+    {% if user.is_authenticated %}
     {% if user.role == "CTO" %}
         <li><a href="{% url 'employees' %}">Employees</a></li>
+        <li><a href="{% url 'teams' %}">Teams</a></li>
         {% comment %} <li><a href="{% url 'password_change' %}">Password Change</a></li> {% endcomment %}
             <li class="right"><form action="{% url 'logout' %}" method="post">
         {% csrf_token %}
@@ -32,8 +34,10 @@
     {% elif user.role == "TL-JS" %}
     {% else %} {% endcomment %}
     {% endif %}
-    {% endblock %}
     {% endif %}
+
+    {% endblock %}
+    
 
 
     {% block content %}

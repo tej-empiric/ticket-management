@@ -8,8 +8,17 @@
  {{ user.username }}!
  {% endblock %}
 
+{% if user.is_authenticated %}
 {% block navigation %} 
 {% if user.role == "CTO" %}
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'teams' %}">Teams</a></li>
+        {% comment %} <li><a href="{% url 'password_change' %}">Password Change</a></li> {% endcomment %}
+            <li class="right"><form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+                <button type="submit" class="button">Log Out</button>
+                </form></li>
+{% elif user.role == "PM" %}
         <li><a href="{% url 'home' %}">Home</a></li>
         {% comment %} <li><a href="{% url 'password_change' %}">Password Change</a></li> {% endcomment %}
             <li class="right"><form action="{% url 'logout' %}" method="post">
@@ -18,16 +27,18 @@
                 </form></li>
 {% endif %}
 {% endblock %}
+{% endif %}
 
 {% block content %}
 <h1>Employees</h1>
 
 {% if user1_list %}
-    <table>
+    <table id="employee-table">
         <tr>
             <th>Employee</th>
             <th>Login Access</th>
             <th>Role</th>
+            <th>Delete</th>
         </tr>
         
             {% for user in user1_list %}
@@ -41,28 +52,47 @@
                             {% csrf_token %}
                             <input type="checkbox" id = "b1" name="selected_users" value="{{ user.id }}" {% if user.is_active %} checked {% endif %}>
                             <input type="hidden" name="user_id" value="{{ user.id }}">
-                            <button type="submit" id="b1" class="button">Submit</button>
+                            <button type="submit" name="active-form" id="b1" class="button">Submit</button>
                         </form> 
                         
             </td>
             <td>
-                        {% comment %} {% if role %}
-                            show role 
-                            edit button
-                            delete button 
-                        {% else %}
-                            dropdown to select role and submit button 
-                        {% endif %} {% endcomment %}
+
+                {% if user.role %}
+                    {{ user.role }}
+                <span class="b1">
+                    <form method="post" action="{% url "edit" user.id %}">
+                        {% csrf_token %}
+                        <button type="submit" name="edit-role" class="edit-btn b1 button" />Edit</button>
+                    </form>
+                </span>
+                
+                {% else %}
+                <div id="else-part" data-visible="{% if user.role %}false{% else %}true{% endif %}">
+                <form method="post" class="f2">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <button type="submit" name="role-form" class="button">Submit</button>
+                </form>
+                </div>
+                {% endif %}
+            </td>
+            <td>
+                    {% csrf_token %}
+                    <button type="submit" class="delete-btn b1 button" data-user-id="{{ user.id}}"/>Delete</button>
+                
             </td>
         </tr>
             {% endif %}
             {% endfor %} 
         
     </table>
-
+    
 {% else %}
 <p>There are no users</p>
 {% endif %}
+
 
 {% endblock %}
 {% endif %}

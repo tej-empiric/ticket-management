@@ -9,3 +9,12 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ("username", "email", "password1", "password2")
 
 
+class UserRoleForm(forms.Form):
+    ROLES_CHOICES = [
+        ("PM", "PM"),
+        ("Python-TL", "Python-TL"),
+        ("JS-TL", "JS-TL"),
+        ("Python Developer", "Python Developer"),
+        ("JS-Developer", "JS-Developer"),
+    ]
+    user_role = forms.ChoiceField(choices=ROLES_CHOICES)

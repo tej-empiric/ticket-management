@@ -29,7 +29,7 @@ ul.topnav {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #333;
+    background-color: #7E8C9C;
 }
 
 ul.topnav li {float: left;}
@@ -61,15 +61,28 @@ ul.topnav li.right {float: right;}
   justify-content: flex-end;
 }
 
-table {
-  width: 80%;
-
+#employee-table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
 }
 
-td, th {
-  width: 33%;
+#employee-table td, #employee-table th {
+  border: 1px solid #ddd;
+  padding: 8px;
 }
 
+#employee-table tr:nth-child(even){background-color: #f2f2f2;}
+
+#employee-table tr:hover {background-color: #ddd;}
+
+#employee-table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #2185fc;
+  color: white;
+}
 
 @media screen and (max-width: 600px) {
   
