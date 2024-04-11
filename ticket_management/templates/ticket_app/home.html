@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% if user.is_authenticated %}
+
+    {% block header %} 
+
+    Hi {{ user.username }}!
+    {% endblock %}
+
+
+    {% block navigation %}
+    {% if user.role == "CTO" %}
+        <li><a href="{% url 'employees' %}">Employees</a></li>
+        {% comment %} <li><a href="{% url 'password_change' %}">Password Change</a></li> {% endcomment %}
+            <li class="right"><form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+                <button type="submit" class="button">Log Out</button>
+                </form></li>
+
+     {% comment %} {% elif user.role == "PM" %} {% endcomment %}
+     {% else %}
+     <li><a href="{% url 'employees' %}">Employees</a></li>
+        {% comment %} <li><a href="{% url 'password_change' %}">Password Change</a></li> {% endcomment %}
+            <li class="right"><form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+                <button type="submit" class="button">Log Out</button>
+                </form></li>
+     {% comment %}
+    {% elif user.role == "TL-Python" %}
+    {% elif user.role == "TL-JS" %}
+    {% else %} {% endcomment %}
+    {% endif %}
+    {% endblock %}
+    {% endif %}
+
+
+    {% block content %}
+
+{% if user.is_authenticated %}
+    <p>List of Tickets</p>
+    {% else %}
+    <main>
+    <p>You are not logged in</p>
+    <a href="{% url 'login' %}">Log In</a>
+    </main>
+    {% endif %}
+    {% endblock %}
+
+
+   
+
