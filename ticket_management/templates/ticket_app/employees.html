@@ -4,17 +4,17 @@
 
 {% if user.is_authenticated %}
 {% block header %} 
-
- {{ user.username }}!
- {% endblock %}
-
-{% if user.is_authenticated %}
-{% block navigation %} 
+<li class="name"><a href="{% url 'home' %}">
+    {{ user.username }}!
+</a></li>
 {% if user.role == "CTO" %}
+
+        
         <li><a href="{% url 'home' %}">Home</a></li>
         <li><a href="{% url 'teams' %}">Teams</a></li>
         {% comment %} <li><a href="{% url 'password_change' %}">Password Change</a></li> {% endcomment %}
             <li class="right"><form action="{% url 'logout' %}" method="post">
+            
         {% csrf_token %}
                 <button type="submit" class="button">Log Out</button>
                 </form></li>
@@ -27,17 +27,19 @@
                 </form></li>
 {% endif %}
 {% endblock %}
-{% endif %}
 
 {% block content %}
 <h1>Employees</h1>
 
 {% if user1_list %}
+    {% if user.role == "CTO" %}
     <table id="employee-table">
         <tr>
             <th>Employee</th>
             <th>Login Access</th>
             <th>Role</th>
+            <th>PM</th>
+            <th>TL</th>
             <th>Delete</th>
         </tr>
         
@@ -48,47 +50,170 @@
                     {{user.username}}
             </td>
             <td>
+                {% if user.role != "CTO" %}
                         <form method="post" class="f1">
                             {% csrf_token %}
                             <input type="checkbox" id = "b1" name="selected_users" value="{{ user.id }}" {% if user.is_active %} checked {% endif %}>
                             <input type="hidden" name="user_id" value="{{ user.id }}">
                             <button type="submit" name="active-form" id="b1" class="button">Submit</button>
                         </form> 
-                        
+                {% endif %}
             </td>
             <td>
 
                 {% if user.role %}
+                  {% if user.role == "CTO" %}
                     {{ user.role }}
-                <span class="b1">
-                    <form method="post" action="{% url "edit" user.id %}">
-                        {% csrf_token %}
-                        <button type="submit" name="edit-role" class="edit-btn b1 button" />Edit</button>
-                    </form>
-                </span>
+                  {% else %}
+                    {{ user.role }}
+                    <span class="b1">
+                        <form method="post" action="{% url "edit_role" user.id %}">
+                            {% csrf_token %}
+                            <button type="submit" name="edit-role" class="edit-btn b1 button" />Edit</button>
+                        </form>
+                    </span>
+                  {% endif %}
                 
                 {% else %}
-                <div id="else-part" data-visible="{% if user.role %}false{% else %}true{% endif %}">
                 <form method="post" class="f2">
                     {% csrf_token %}
-                    {{ form.as_p }}
+                    {{ form1.as_p }}
                     <input type="hidden" name="user_id" value="{{ user.id }}">
                     <button type="submit" name="role-form" class="button">Submit</button>
                 </form>
-                </div>
                 {% endif %}
             </td>
             <td>
+                {% if user.role != "CTO" and user.role != "PM" %}
+                {% if user.assigned_PM %}
+                {{ user.assigned_PM }}
+                <span class="b1">
+                    <form method="post" action="{% url "edit_pm" user.id %}">
+                        {% csrf_token %}
+                        <button type="submit" name="edit-pm" class="edit-btn b1 button" />Edit</button>
+                    </form>
+                </span>
+                {% else %}
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form2.as_p  }}
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <button type="submit" name="pm-form" class="button">Submit</button>
+                </form>
+                {% endif %}
+                {% else %}
+                    <p>None</p>
+                {% endif %}
+            </td>
+
+            <td>
+            {% if user.role != "CTO" and user.role != "PM" and user.role != "Python-TL" and user.role != "JS-TL" %}
+              {% if user.assigned_TL %}
+              {{ user.assigned_TL }}
+              <span class="b1">
+                <form method="post" action="{% url "edit_tl" user.id %}">
+                    {% csrf_token %}
+                    <button type="submit" name="edit-tl" class="edit-btn b1 button" />Edit</button>
+                </form>
+              </span>
+            {% else %}
+            <form method="post">
+                {% csrf_token %}
+                {{ form3.as_p  }}
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+                <button type="submit" name="tl-form" class="button">Submit</button>
+            </form>
+            {% endif %}
+            {% else %}
+                <p>None</p>
+            {% endif %}
+            
+
+            </td>
+
+            <td>    
+                {% if user.role != "CTO" %}
                     {% csrf_token %}
                     <button type="submit" class="delete-btn b1 button" data-user-id="{{ user.id}}"/>Delete</button>
-                
+                {% endif %}
             </td>
         </tr>
             {% endif %}
             {% endfor %} 
         
     </table>
-    
+
+{% elif user.role == "PM" %}
+    <table id="employee-table">
+        <tr>
+            <th>Employee</th>
+            <th>Role</th>
+            <th>TL</th>
+        </tr>
+        
+            {% for user1 in user1_list %}
+            {% if user1.assigned_PM_id == user.id %}
+        <tr>
+            <td>
+                    {{user1.username}} 
+            </td>
+           
+            <td>
+
+                {% if user1.role %}
+                    {{ user1.role }}
+                    <span class="b1">
+                        <form method="post" action="{% url "edit_role" user1.id %}">
+                            {% csrf_token %}
+                            <button type="submit" name="edit-role" class="edit-btn b1 button" />Edit</button>
+                        </form>
+                    </span>
+                
+                {% else %}
+                <form method="post" class="f2">
+                    {% csrf_token %}
+                    {{ form1.as_p }}
+                    <input type="hidden" name="user_id" value="{{ user1.id }}">
+                    <button type="submit" name="role-form" class="button">Submit</button>
+                </form>
+                {% endif %}
+            </td>
+
+
+            <td>
+            {% if  user1.role != "Python-TL" and user1.role != "JS-TL" %}
+            {% if user1.assigned_TL %}
+            {{ user1.assigned_TL }}
+            <span class="b1">
+                <form method="post" action="{% url "edit_tl" user1.id %}">
+                    {% csrf_token %}
+                    <button type="submit" name="edit-tl" class="edit-btn b1 button" />Edit</button>
+                </form>
+            </span>
+            {% else %}
+            <form method="post">
+                {% csrf_token %}
+                {{ form3.as_p  }}
+                <input type="hidden" name="user_id" value="{{ user1.id }}">
+                <button type="submit" name="tl-form" class="button">Submit</button>
+            </form>
+            {% endif %}
+            {% else %}
+                <p>None</p>
+            {% endif %}
+            
+
+            </td>
+
+            
+        </tr>
+            {% endif %}
+            {% endfor %} 
+        
+    </table>
+
+    {% endif %}
+
 {% else %}
 <p>There are no users</p>
 {% endif %}

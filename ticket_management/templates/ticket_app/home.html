@@ -2,16 +2,13 @@
 
 {% block title %}Home{% endblock %}
 
-{% if user.is_authenticated %}
+
 
     {% block header %} 
-
-    Hi {{ user.username }}!
-    {% endblock %}
-    {% endif %}
-
-    {% block navigation %}
     {% if user.is_authenticated %}
+    <li class="name"><a href="{% url 'home' %}">
+    Hi {{ user.username }}!
+    </li>
     {% if user.role == "CTO" %}
         <li><a href="{% url 'employees' %}">Employees</a></li>
         <li><a href="{% url 'teams' %}">Teams</a></li>
@@ -34,10 +31,10 @@
     {% elif user.role == "TL-JS" %}
     {% else %} {% endcomment %}
     {% endif %}
-    {% endif %}
 
+    {% endif %}
     {% endblock %}
-    
+   
 
 
     {% block content %}

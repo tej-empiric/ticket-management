@@ -6,8 +6,20 @@ from django.contrib.auth.models import AbstractUser
 
 class User1(AbstractUser):
     role = models.CharField(max_length=100, null=True, blank=True)
-    assigned_TL = models.CharField(max_length=100, null=True, blank=True)
-    assigned_PM = models.CharField(max_length=100, null=True, blank=True)
+    assigned_TL = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        related_name="developers_tl",
+        null=True,
+        blank=True,
+    )
+    assigned_PM = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        related_name="developers_pm",
+        null=True,
+        blank=True,
+    )
 
     def save(self, *args, **kwargs):
         if not self.pk and "is_active" not in kwargs:

@@ -7,14 +7,12 @@ body {
     margin: 0px;
 }
 
-header {
-    display: flex;
+
+.name {
     align-items: center;
     font-size: 30px;
     text-transform: uppercase;
     color: white;
-    background-color: #345098;
-    padding: 34px 0px;
 }
 
 img {
@@ -29,22 +27,29 @@ ul.topnav {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #7E8C9C;
+    background-color: #345098;
+    padding: 10px 0px;
+    display: flex;
+    align-items: center;
 }
 
-ul.topnav li {float: left;}
+ul.topnav li {
+  float: left;
+}
 
 ul.topnav li a {
-    display: block;
     color: white;
-    text-align: center;
-    padding: 14px 16px;
     text-decoration: none;
+    padding: 10px 10px;
+    
   }
     
-ul.topnav li a:hover {background-color: #111;}
+ul.topnav li a:hover {background-color: #345098;}
 
-ul.topnav li.right {float: right;}
+ul.topnav li.right {
+  /* float: right; */
+  margin-left: auto; 
+}
 
 .button {
   background-color: #2185fc; 
