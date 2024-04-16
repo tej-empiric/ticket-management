@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Ticket{% endblock %}
+
+{% block header %}
+{% if user.is_authenticated %}
+<li class="name"><a href="{% url 'home' %}">
+    {{ user.username }}!
+</a></li>
+{% if user.role %}
+        <li><a href="{% url 'home' %}">Home</a></li>
+        {% comment %} <li><a href="{% url 'password_change' %}">Password Change</a></li> {% endcomment %}
+            <li class="right"><form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+                <button type="submit" class="button">Log Out</button>
+                </form></li>
+{% endif %}
+{% endif %}
+{% endblock %}
+
+{%  block content %}
+{% if user.is_authenticated %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        <li>{{message}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+<h3>Create Ticket</h3>
+<form method="POST">
+    {% csrf_token %}
+    <div class="row">
+        {% for field in form %}
+        <div class="col-25">
+            {{field.label_tag}}
+        </div>
+        <div class="col-75">
+            {{field}} <br><br>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="row">
+    <button type="submit" class="button">Submit</button>
+    </div>
+</form>
+{% endif %}
+{% endblock %}

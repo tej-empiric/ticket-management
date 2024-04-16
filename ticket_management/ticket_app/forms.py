@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from .models import User1
+from .models import User1, Ticket, Comment
 from django import forms
 from django.db.models import Q
 
@@ -50,3 +50,24 @@ class AssignTLForm(forms.Form):
             return selected_tl
         else:
             return None
+
+
+class TicketForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super(TicketForm, self).__init__(*args, **kwargs)
+        if user:
+            if user.role == "PM":
+                self.fields["created_for"].queryset = User1.objects.filter(
+                    assigned_PM=user
+                )
+            elif user.role == "Python-TL" or user.role == "JS-TL":
+                self.fields["created_for"].queryset = User1.objects.filter(
+                    assigned_TL=user
+                )
+            else:
+                self.fields["created_for"].queryset = User1.objects.filter(id=user.id)
+
+    class Meta:
+        model = Ticket
+        fields = ["title", "detail", "created_for"]

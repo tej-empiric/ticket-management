@@ -3,8 +3,16 @@ from .models import User1, Ticket, Comment
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, View
-from .forms import CustomUserCreationForm, UserRoleForm, AssignPMForm, AssignTLForm
+from .forms import (
+    CustomUserCreationForm,
+    UserRoleForm,
+    AssignPMForm,
+    AssignTLForm,
+    TicketForm,
+)
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.contrib import messages
 
 
 class SignUpView(CreateView):
@@ -123,5 +131,40 @@ def edit_tl(request, id):
     return redirect("/employees")
 
 
-class TeamView(View):
-    pass
+def teams(request):
+    pms = User1.objects.filter(role="PM")
+
+    ptd_mapping = {}
+
+    for pm in pms:
+        tls = User1.objects.filter(
+            Q(role="Python-TL") | Q(role="JS-TL"), assigned_PM=pm
+        )
+
+        td_mapping = {}
+
+        for tl in tls:
+            developers = User1.objects.filter(
+                Q(role="Python Developer") | Q(role="JS Developer"), assigned_TL=tl
+            )
+
+            td_mapping[tl] = developers
+
+        ptd_mapping[pm] = td_mapping
+
+    context = {"ptd_mapping": ptd_mapping}
+    return render(request, "ticket_app/teams.html", context)
+
+
+def ticket(request):
+    if request.method == "POST":
+        form = TicketForm(request.POST, user=request.user)
+        if form.is_valid():
+            ticket = form.save(commit=False)
+            ticket.created_by = request.user
+            ticket.save()
+            messages.success(request, "Ticket created successfully")
+            return redirect("ticket")
+    else:
+        form = TicketForm(user=request.user)
+    return render(request, "ticket_app/ticket.html", {"form": form})

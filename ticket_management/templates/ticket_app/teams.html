@@ -15,3 +15,53 @@ pm 2
         dev 7
         dev 8 
          {% endcomment %}
+
+
+{% block title %}Teams{% endblock %} 
+
+
+{% block header %} 
+{% if user.is_authenticated %}
+<li class="name"><a href="{% url 'home' %}">
+    {{ user.username }}!
+</a></li>
+{% if user.role == "CTO" %}
+
+        
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'employees' %}">Employees</a></li>
+        {% comment %} <li><a href="{% url 'password_change' %}">Password Change</a></li> {% endcomment %}
+            <li class="right"><form action="{% url 'logout' %}" method="post">
+            
+        {% csrf_token %}
+                <button type="submit" class="button">Log Out</button>
+                </form></li>
+{% endif %}
+{% endif %}
+{% endblock %} 
+
+
+{% block content %} 
+{% if ptd_mapping %}
+<ul>
+    {% for pm, td_mapping in ptd_mapping.items %}
+    <li> {{ pm }} ({{pm.role}}) <br><br>
+        <ul>
+            {% for tl, developers in td_mapping.items %}
+            <li>{{ tl }} ({{tl.role}}) <br><br>
+                <ul>
+                    {% for developer in developers %}
+                    <li>{{ developer }} ({{developer.role}}) <br><br></li>  
+                    {% endfor %}
+                </ul> 
+            </li> 
+            {% endfor %}
+        </ul>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No data available.</p>
+{% endif %}
+{% endblock %}
+

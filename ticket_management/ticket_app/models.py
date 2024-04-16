@@ -27,7 +27,7 @@ class User1(AbstractUser):
 
         super().save(*args, **kwargs)
 
-
+  
 class Ticket(models.Model):
     title = models.CharField(max_length=100)
     detail = models.TextField()

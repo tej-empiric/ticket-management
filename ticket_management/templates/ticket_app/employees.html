@@ -18,7 +18,7 @@
         {% csrf_token %}
                 <button type="submit" class="button">Log Out</button>
                 </form></li>
-{% elif user.role == "PM" %}
+{% elif user.role == "PM" or user.role == "Python-TL" or user.role == "JS-TL" %}
         <li><a href="{% url 'home' %}">Home</a></li>
         {% comment %} <li><a href="{% url 'password_change' %}">Password Change</a></li> {% endcomment %}
             <li class="right"><form action="{% url 'logout' %}" method="post">
@@ -203,6 +203,36 @@
             {% endif %}
             
 
+            </td>
+
+            
+        </tr>
+            {% endif %}
+            {% endfor %} 
+        
+    </table>
+
+    {% elif user.role == "Python-TL" or user.role == "JS-TL" %}
+    <table id="employee-table">
+        <tr>
+            <th>Employee</th>
+            <th>Role</th>
+        </tr>
+        
+            {% for user1 in user1_list %}
+            {% if user1.assigned_TL_id == user.id %}
+        <tr>
+            <td>
+                    {{user1.username}} 
+            </td>
+           
+            <td>
+
+                {% if user1.role %}
+                    {{ user1.role }}
+                
+                
+                {% endif %}
             </td>
 
             
