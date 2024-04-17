@@ -9,6 +9,8 @@ from .forms import (
     AssignPMForm,
     AssignTLForm,
     TicketForm,
+    AssigneeForm,
+    StatusForm,
 )
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -19,6 +21,66 @@ class SignUpView(CreateView):
     form_class = CustomUserCreationForm
     success_url = reverse_lazy("login")
     template_name = "registration/signup.html"
+
+
+class HomeView(ListView):
+    model = Ticket
+    template_name = "ticket_app/home.html"
+
+    def post(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            if "assignee-form" in request.POST:
+                form = AssigneeForm(request.POST, user=request.user)
+                if form.is_valid():
+                    ticket_id = request.POST.get("ticket_id")
+                    created_for = form.cleaned_data["created_for"]
+                    ticket = Ticket.objects.get(id=ticket_id)
+                    ticket.created_for = created_for
+                    ticket.save()
+                else:
+                    context = self.get_context_data()
+                    context["form4"] = form
+                    return render(request, self.template_name, context)
+
+            if "status-form" in request.POST:
+                form = StatusForm(request.POST)
+                if form.is_valid():
+                    ticket_id = request.POST.get("ticket_id")
+                    status = form.cleaned_data["status"]
+                    ticket = Ticket.objects.get(id=ticket_id)
+                    ticket.status = status
+                    ticket.save()
+                    return redirect("home")
+                else:
+                    context = self.get_context_data()
+                    context["form5"] = form
+                    return render(request, self.template_name, context)
+
+        return HttpResponseRedirect(request.path)
+
+    def get_context_data(self, **kwargs):
+        if self.request.user.is_authenticated:
+            context = super().get_context_data(**kwargs)
+            context["form4"] = AssigneeForm(user=self.request.user)
+            context["form5"] = StatusForm()
+            return context
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            if self.request.user.role == "CTO":
+                return Ticket.objects.all()
+            else:
+                user = self.request.user
+                return Ticket.objects.filter(
+                    Q(created_for=user)
+                    | Q(created_by=user)
+                    | Q(created_by__assigned_PM=user)
+                    | Q(created_by__assigned_TL=user)
+                    | Q(created_for__assigned_PM=user)
+                    | Q(created_for__assigned_TL=user)
+                ).order_by("-created_at")
+        else:
+            return Ticket.objects.none()
 
 
 class EmployeeView(ListView):
@@ -85,7 +147,7 @@ class EmployeeView(ListView):
         return context
 
     def get_queryset(self):
-        return User1.objects.all()
+        return User1.objects.all().order_by("username")
 
 
 def delete(request, id):
@@ -131,6 +193,29 @@ def edit_tl(request, id):
     return redirect("/employees")
 
 
+def edit_status(request, id):
+    if request.method == "POST":
+        try:
+            ticket = Ticket.objects.get(id=id)
+            ticket.status = None
+            ticket.save()
+        except Exception as e:
+            print(f"Error editing ticket status {str(e)}")
+    return redirect("/")
+
+
+def edit_assignee(request, id):
+    if request.method == "POST":
+        try:
+            ticket = Ticket.objects.get(id=id)
+            ticket.created_for = None
+            ticket.save()
+        except Exception as e:
+            print(f"Error editing ticket assignee {str(e)}")
+    return redirect("/")
+
+
+@login_required
 def teams(request):
     pms = User1.objects.filter(role="PM")
 
@@ -156,6 +241,7 @@ def teams(request):
     return render(request, "ticket_app/teams.html", context)
 
 
+@login_required
 def ticket(request):
     if request.method == "POST":
         form = TicketForm(request.POST, user=request.user)
@@ -164,7 +250,7 @@ def ticket(request):
             ticket.created_by = request.user
             ticket.save()
             messages.success(request, "Ticket created successfully")
-            return redirect("ticket")
+            return redirect("home")
     else:
         form = TicketForm(user=request.user)
     return render(request, "ticket_app/ticket.html", {"form": form})

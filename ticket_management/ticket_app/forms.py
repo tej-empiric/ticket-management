@@ -59,7 +59,7 @@ class TicketForm(forms.ModelForm):
         if user:
             if user.role == "PM":
                 self.fields["created_for"].queryset = User1.objects.filter(
-                    assigned_PM=user
+                    Q(assigned_PM=user), Q(role="Python-TL") | Q(role="JS-TL")
                 )
             elif user.role == "Python-TL" or user.role == "JS-TL":
                 self.fields["created_for"].queryset = User1.objects.filter(
@@ -71,3 +71,34 @@ class TicketForm(forms.ModelForm):
     class Meta:
         model = Ticket
         fields = ["title", "detail", "created_for"]
+
+
+class AssigneeForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super(AssigneeForm, self).__init__(*args, **kwargs)
+        if user:
+            if user.role == "PM":
+                self.fields["created_for"].queryset = User1.objects.filter(
+                    assigned_PM=user
+                )
+            elif user.role == "Python-TL" or user.role == "JS-TL":
+                self.fields["created_for"].queryset = User1.objects.filter(
+                    assigned_TL=user
+                )
+            else:
+                self.fields["created_for"].queryset = User1.objects.filter(id=user.id)
+
+    class Meta:
+        model = Ticket
+        fields = ["created_for"]
+
+
+class StatusForm(forms.Form):
+    STATUS_CHOICES = [
+        ("Assigned", "Assigned"),
+        ("In Progress", "In Progress"),
+        ("Completed", "Completed"),
+        ("Cancelled", "Cancelled"),
+    ]
+    status = forms.ChoiceField(choices=STATUS_CHOICES)

@@ -3,7 +3,6 @@
 {% block title %}Home{% endblock %}
 
 
-
     {% block header %} 
     {% if user.is_authenticated %}
     <li class="name"><a href="{% url 'home' %}">
@@ -37,18 +36,75 @@
     {% endblock %}
    
 
-
-    {% block content %}
+{% block content %}
 
 {% if user.is_authenticated %}
-    <p>List of Tickets</p>
-    {% else %}
+    <h2 class="title">Tickets</h2>
+    {% if ticket_list %}
+    <table id="tickets">
+        <tr>
+            <th>Ticket</th>
+            <th>Assigned To</th>
+            <th>Status</th>
+        </tr>
+        {% for ticket in ticket_list %}
+        <tr>
+            <td>
+                <a href="/">{{ticket.title}}</a>
+            </td>
+
+            <td>
+                {% if ticket.created_for %}
+                {{ticket.created_for}}
+                    {% if user.role != "CTO" and user.role != "Python Developer" and user.role != "JS Developer" and ticket.created_for != user %}
+                    <form method="POST" action="{% url "edit_assignee" ticket.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="button">Edit</button>
+                    </form>
+                    {% endif %}
+                {% else %}
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form4.as_p}}
+                    <input type="hidden" name="ticket_id" value="{{ticket.id}}">
+                    <button type="submit" name="assignee-form" class="button">Submit</button>
+                </form> 
+                {% endif %}
+            </td>
+
+            <td>
+                {% if ticket.status %}
+                    {{ticket.status}}
+                    {% if user.role != "CTO" %}
+                        <form method="POST" action="{% url "edit_status" ticket.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="button">Change</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form5.as_p}}
+                    <input type="hidden" name="ticket_id" value="{{ticket.id}}">
+                    <button type="submit" name="status-form" class="button">Submit</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+{% else %}
+
+
+
     <main>
     <p>You are not logged in</p>
     <a href="{% url 'login' %}">Log In</a>
     </main>
-    {% endif %}
-    {% endblock %}
+
+{% endif %}
+{% endblock %}
 
 
    

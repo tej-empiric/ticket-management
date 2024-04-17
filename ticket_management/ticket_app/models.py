@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-# Create your models here.
-
 
 class User1(AbstractUser):
     role = models.CharField(max_length=100, null=True, blank=True)
@@ -27,7 +25,7 @@ class User1(AbstractUser):
 
         super().save(*args, **kwargs)
 
-  
+
 class Ticket(models.Model):
     title = models.CharField(max_length=100)
     detail = models.TextField()
@@ -35,8 +33,14 @@ class Ticket(models.Model):
         User1, related_name="created_by", on_delete=models.PROTECT
     )
     created_for = models.ForeignKey(
-        User1, related_name="created_for", on_delete=models.PROTECT
+        User1,
+        related_name="created_for",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
+    status = models.CharField(max_length=100, default="assigned", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return self.title

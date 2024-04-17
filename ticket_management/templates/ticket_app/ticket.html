@@ -27,8 +27,8 @@
     {% endfor %}
 </ul>
 {% endif %}
-<h3>Create Ticket</h3>
-<form method="POST">
+<h3 class="title1">Create Ticket</h3>
+<form method="POST" class="ticket-form">
     {% csrf_token %}
     <div class="row">
         {% for field in form %}
