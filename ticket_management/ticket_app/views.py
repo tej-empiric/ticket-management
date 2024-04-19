@@ -11,6 +11,7 @@ from .forms import (
     TicketForm,
     AssigneeForm,
     StatusForm,
+    CommentForm,
 )
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -150,6 +151,7 @@ class EmployeeView(ListView):
         return User1.objects.all().order_by("username")
 
 
+@login_required
 def delete(request, id):
     try:
         user = User1.objects.get(pk=id)
@@ -160,6 +162,7 @@ def delete(request, id):
     return redirect("/employees")
 
 
+@login_required
 def edit_role(request, id):
     if request.method == "POST":
         try:
@@ -171,6 +174,7 @@ def edit_role(request, id):
     return redirect("/employees")
 
 
+@login_required
 def edit_pm(request, id):
     if request.method == "POST":
         try:
@@ -182,6 +186,7 @@ def edit_pm(request, id):
     return redirect("/employees")
 
 
+@login_required
 def edit_tl(request, id):
     if request.method == "POST":
         try:
@@ -193,6 +198,7 @@ def edit_tl(request, id):
     return redirect("/employees")
 
 
+@login_required
 def edit_status(request, id):
     if request.method == "POST":
         try:
@@ -204,6 +210,7 @@ def edit_status(request, id):
     return redirect("/")
 
 
+@login_required
 def edit_assignee(request, id):
     if request.method == "POST":
         try:
@@ -242,7 +249,7 @@ def teams(request):
 
 
 @login_required
-def ticket(request):
+def create_ticket(request):
     if request.method == "POST":
         form = TicketForm(request.POST, user=request.user)
         if form.is_valid():
@@ -254,3 +261,84 @@ def ticket(request):
     else:
         form = TicketForm(user=request.user)
     return render(request, "ticket_app/create_ticket.html", {"form": form})
+
+
+@login_required
+def ticket(request, id):
+    context = {}
+    try:
+        ticket = Ticket.objects.get(id=id)
+        user = request.user
+
+        if request.method == "POST":
+            if "comment" in request.POST:
+                form1 = CommentForm(request.POST)
+                if form1.is_valid():
+                    comment = form1.save(commit=False)
+                    comment.ticket = ticket
+                    comment.user = request.user
+                    comment.save()
+                    return redirect(f"/ticket/{id}/")
+        else:
+            form1 = CommentForm()
+
+        comments = Comment.objects.filter(ticket=ticket).order_by("-created_at")
+        context = {"ticket": ticket, "user": user, "form1": form1, "comments": comments}
+
+    except Exception as e:
+        print(f"Error displaying ticket {str(e)}")
+
+    return render(request, "ticket_app/ticket.html", context)
+
+
+@login_required
+def edit_ticket(request, id):
+    try:
+        ticket = Ticket.objects.get(pk=id)
+        if request.method == "POST":
+            form = TicketForm(request.POST, instance=ticket)
+            if form.is_valid():
+                form.save()
+                return redirect(f"/ticket/{id}")
+            else:
+                form = TicketForm(instance=ticket)
+        else:
+            form = TicketForm(instance=ticket)
+
+        context = {"form": form}
+
+    except Exception as e:
+        print(f"Error editing ticket {str(e)}")
+
+    return render(request, "ticket_app/create_ticket.html", context)
+
+
+@login_required
+def delete_ticket(request, id):
+    try:
+        ticket = Ticket.objects.get(pk=id)
+        ticket.delete()
+    except Exception as e:
+        print(f"Error deleting blog {str(e)}")
+    return redirect("home")
+
+
+# @login_required
+# def comment(request):
+#     try:
+#         # comment id , request.user, ticket.id
+#         if request.method == "POST":
+#             form1 = CommentForm(request.POST, user=request.user)
+#             if form1.is_valid():
+#                 ticket = request.POST.get("ticket")
+#                 comment = form1.save(commit=False)
+#                 comment.ticket = ticket
+#                 comment.user = request.user
+#                 comment.save()
+#                 return redirect(f"/ticket/{{ticket.id}}")
+#         else:
+#             form1 = CommentForm()
+
+#     except Exception as e:
+#         print(f"Error creating comment {str(e)}")
+#     return render(request, f"/ticket/{{ticket.id}}", {"form1": form1})

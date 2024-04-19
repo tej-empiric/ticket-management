@@ -102,3 +102,9 @@ class StatusForm(forms.Form):
         ("Cancelled", "Cancelled"),
     ]
     status = forms.ChoiceField(choices=STATUS_CHOICES)
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["detail"]

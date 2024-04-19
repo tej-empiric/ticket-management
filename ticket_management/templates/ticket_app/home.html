@@ -50,7 +50,7 @@
         {% for ticket in ticket_list %}
         <tr>
             <td>
-                <a href="/">{{ticket.title}}</a>
+                <a href="{% url 'ticket' ticket.id %}">{{ticket.title}}</a>
             </td>
 
             <td>
