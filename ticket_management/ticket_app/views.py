@@ -253,4 +253,4 @@ def ticket(request):
             return redirect("home")
     else:
         form = TicketForm(user=request.user)
-    return render(request, "ticket_app/ticket.html", {"form": form})
+    return render(request, "ticket_app/create_ticket.html", {"form": form})

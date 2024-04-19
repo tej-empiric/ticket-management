@@ -19,7 +19,7 @@
 
      {% comment %} {% elif user.role == "PM" %} {% endcomment %}
      {% else %}
-     <li><a href="{% url 'ticket' %}">Ticket</a></li>
+     <li><a href="{% url 'create-ticket' %}">Ticket</a></li>
      <li><a href="{% url 'employees' %}">Employees</a></li>
         {% comment %} <li><a href="{% url 'password_change' %}">Password Change</a></li> {% endcomment %}
             <li class="right"><form action="{% url 'logout' %}" method="post">
