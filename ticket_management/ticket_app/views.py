@@ -224,27 +224,31 @@ def edit_assignee(request, id):
 
 @login_required
 def teams(request):
-    pms = User1.objects.filter(role="PM")
+    context = {}
+    try:
+        pms = User1.objects.filter(role="PM")
 
-    ptd_mapping = {}
+        ptd_mapping = {}
 
-    for pm in pms:
-        tls = User1.objects.filter(
-            Q(role="Python-TL") | Q(role="JS-TL"), assigned_PM=pm
-        )
-
-        td_mapping = {}
-
-        for tl in tls:
-            developers = User1.objects.filter(
-                Q(role="Python Developer") | Q(role="JS Developer"), assigned_TL=tl
+        for pm in pms:
+            tls = User1.objects.filter(
+                Q(role="Python-TL") | Q(role="JS-TL"), assigned_PM=pm
             )
 
-            td_mapping[tl] = developers
+            td_mapping = {}
 
-        ptd_mapping[pm] = td_mapping
+            for tl in tls:
+                developers = User1.objects.filter(
+                    Q(role="Python Developer") | Q(role="JS Developer"), assigned_TL=tl
+                )
 
-    context = {"ptd_mapping": ptd_mapping}
+                td_mapping[tl] = developers
+
+            ptd_mapping[pm] = td_mapping
+
+        context = {"ptd_mapping": ptd_mapping}
+    except Exception as e:
+        print(f"Error Displaying Team {str(e)}")
     return render(request, "ticket_app/teams.html", context)
 
 
@@ -286,7 +290,7 @@ def ticket(request, id):
         context = {"ticket": ticket, "user": user, "form1": form1, "comments": comments}
 
     except Exception as e:
-        print(f"Error displaying ticket {str(e)}")
+        print(f"Error displaying ticket and comments {str(e)}")
 
     return render(request, "ticket_app/ticket.html", context)
 
@@ -321,24 +325,3 @@ def delete_ticket(request, id):
     except Exception as e:
         print(f"Error deleting blog {str(e)}")
     return redirect("home")
-
-
-# @login_required
-# def comment(request):
-#     try:
-#         # comment id , request.user, ticket.id
-#         if request.method == "POST":
-#             form1 = CommentForm(request.POST, user=request.user)
-#             if form1.is_valid():
-#                 ticket = request.POST.get("ticket")
-#                 comment = form1.save(commit=False)
-#                 comment.ticket = ticket
-#                 comment.user = request.user
-#                 comment.save()
-#                 return redirect(f"/ticket/{{ticket.id}}")
-#         else:
-#             form1 = CommentForm()
-
-#     except Exception as e:
-#         print(f"Error creating comment {str(e)}")
-#     return render(request, f"/ticket/{{ticket.id}}", {"form1": form1})

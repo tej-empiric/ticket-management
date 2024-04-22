@@ -40,7 +40,7 @@ Hi {{ user.username }}!
     <h3>Ticket {{ticket.id}}</h3>
     <p>Title: <i>{{ticket.title}}</i></p> 
     <p>Detail: </p>
-    {{ticket.detail}} <br><br>
+    {{ticket.detail|linebreaksbr}} <br><br>
 
     <div>
         {% if ticket.created_by == user %}
@@ -58,7 +58,7 @@ Hi {{ user.username }}!
     </div>
 
     <div class="comment">
-        <h3>Comments</h3>
+        <h3>Add Comment</h3>
         <form method="POST">
             {% csrf_token %}
             {{form1.as_p}}
@@ -67,6 +67,7 @@ Hi {{ user.username }}!
         </form>
     </div>
     <div class="list-comments">
+        <h3>Comments:-</h3>
         {% if comments %}
         {% for comment in comments %}
         <b>{{comment.user}}</b> <br>

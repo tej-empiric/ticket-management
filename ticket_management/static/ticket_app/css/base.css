@@ -107,6 +107,10 @@ ul.topnav li.right {
   margin-right: auto;
 }
 
+/* .ticket {
+  height: 400px;
+} */
+
 #tickets td, #tickets th {
   border: 1px solid #ddd;
   padding: 8px;
